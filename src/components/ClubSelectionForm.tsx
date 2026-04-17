@@ -44,6 +44,7 @@ export function ClubSelectionForm() {
   const totalSelected = selectedClubs.length;
   const isSubmitReady = totalSelected === maxSelections;
   const singleChoiceDomains = ["Dance", "Music", "Sports"];
+  const basicprofdom = ["Dance"];
   const selectedDomainAllowsMultiple = selectedDomain
     ? !singleChoiceDomains.includes(selectedDomain.name)
     : true;
@@ -275,7 +276,7 @@ export function ClubSelectionForm() {
             </div>
             <div>
               <h3 className="font-bold text-[#1b3a2d]">Choose Domain</h3>
-              <p className="text-xs text-[#6b7280]">Select the domain you're interested in</p>
+              <p className="text-xs text-[#6b7280]">Select any six clubs in order of preference</p>
             </div>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -332,7 +333,14 @@ export function ClubSelectionForm() {
                   <h3 className="font-bold text-[#1b3a2d]">Choose Club</h3>
                   <p className="text-xs text-[#6b7280]">
                     {singleChoiceDomains.includes(selectedDomain.name) ? (
-                      "You can select only one option"
+                      selectedDomain.name === "Dance" ? (
+                        <>
+                          Select any one choice{" "}
+                          <span className="font-bold text-black">(Basic proficiency needed)</span>
+                        </>
+                      ) : (
+                        "Select any one choice"
+                      )
                     ) : (
                       <>
                         Select a club from{" "}
@@ -565,10 +573,10 @@ function Header() {
           className="h-16 w-16 rounded-full object-cover"
         />
         <div>
-          <h1 className="text-3xl font-bold text-white">Clubs Registration</h1>
+          <h1 className="text-3xl font-bold text-white">Clubs Wisdom Registration</h1>
           <p className="text-lg text-white">Wisdom World School - Kurukshetra</p>
         </div>
-        <p className="text-xs text-white opacity-70">Developed by Okie Dokie</p>
+        <p className="text-xs text-white">Developed by Okie Dokie</p>
       </div>
     </div>
   );

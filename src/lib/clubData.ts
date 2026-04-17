@@ -29,7 +29,7 @@ export const domains: Domain[] = [
       { name: "Classical Dance" },
       { name: "Contemporary: Hip Hop Dance" },
       { name: "Free Style & Folk Dance" },
-      { name: "Punjabi Folk: Giddha" },
+      { name: "Punjabi Folk: Giddha – (Only for girls) " },
     ],
   },
   {
@@ -45,13 +45,17 @@ export const domains: Domain[] = [
   {
     id: 5,
     name: "Sports",
-    clubs: [{ name: "Chess" }, { name: "Carrom" }, { name: "Table Tennis" }],
+    clubs: [
+      { name: "Chess" },
+      { name: "Carrom" },
+      { name: "Table Tennis (Basic proficiency needed) " },
+    ],
   },
   {
     id: 6,
     name: "Skill Development",
     clubs: [
-      { name: "AR & IOT" },
+      { name: "Augmented Reality and Internet of things" },
       { name: "Food & Baking" },
       { name: "Health & Wellness" },
       { name: "Mass Media" },
@@ -73,7 +77,7 @@ export const domains: Domain[] = [
     name: "Academic",
     clubs: [
       { name: "Rube Goldberg" },
-      { name: "Logic Legends" },
+      { name: "Aptitude & Reasoning club" },
       { name: "Maths Manthan" },
       { name: "Youth Parliament" },
       { name: "Marketing & Sales" },
