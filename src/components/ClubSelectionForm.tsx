@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { domains, type Domain, type Club } from "@/lib/clubData";
+import { submitRegistrationToGoogleSheet } from "@/lib/googleSheet";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,6 +16,18 @@ import { cn } from "@/lib/utils";
 import { ArrowDown, ArrowUp, BookOpen, CheckCircle2, School } from "lucide-react";
 import schoolLogo from "@/assets/school-logo.jpeg";
 
+const normalizeQueryParam = (value: string | null) => {
+  if (!value) return "";
+
+  const decoded = decodeURIComponent(value).trim();
+  const placeholderMatch = decoded.match(/^\$\{(?:zf:)?(.+?)\}$/);
+  if (placeholderMatch) {
+    return placeholderMatch[1] || "";
+  }
+
+  return decoded;
+};
+
 export function ClubSelectionForm() {
   const [selectedDomain, setSelectedDomain] = useState<Domain | null>(null);
   const [selectedClubs, setSelectedClubs] = useState<Club[]>([]);
@@ -24,6 +37,8 @@ export function ClubSelectionForm() {
     "confirm" | "minimum" | null
   >(null);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const maxSelections = 6;
   const totalSelected = selectedClubs.length;
@@ -32,6 +47,32 @@ export function ClubSelectionForm() {
   const selectedDomainAllowsMultiple = selectedDomain
     ? !singleChoiceDomains.includes(selectedDomain.name)
     : true;
+
+  const [studentDetails, setStudentDetails] = useState<{
+    name: string;
+    course: string;
+    regNo: string;
+    stream: string;
+    section: string;
+  }>({
+    name: "",
+    course: "",
+    regNo: "",
+    stream: "",
+    section: "",
+  });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const name = normalizeQueryParam(params.get("name"));
+    const course = normalizeQueryParam(params.get("course"));
+    const regNo = normalizeQueryParam(params.get("regNo"));
+    const stream = normalizeQueryParam(params.get("stream"));
+    const section = normalizeQueryParam(params.get("section"));
+
+    setStudentDetails({ name, course, regNo, stream, section });
+  }, []);
+
   const isMaxReached = totalSelected >= maxSelections;
 
   const handleDomainSelect = (domain: Domain) => {
@@ -54,9 +95,33 @@ export function ClubSelectionForm() {
     setConfirmationDialogState("confirm");
   };
 
-  const handleConfirmSubmit = () => {
+  const handleConfirmSubmit = async () => {
     setConfirmationDialogState(null);
-    setSubmitted(true);
+    setSubmitError(null);
+    setSubmitting(true);
+
+    const selectedClubNames = selectedClubs.map((club) => club.name).join(", ");
+    const selectedClubDomains = selectedClubs.map((club) => getDomainNameForClub(club)).join(", ");
+
+    try {
+      await submitRegistrationToGoogleSheet({
+        name: studentDetails.name,
+        course: studentDetails.course,
+        regNo: studentDetails.regNo,
+        stream: studentDetails.stream,
+        section: studentDetails.section,
+        clubs: selectedClubNames,
+        clubDomains: selectedClubDomains,
+        timestamp: new Date().toISOString(),
+        url: window.location.href,
+      });
+      setSubmitted(true);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : String(error));
+      setConfirmationDialogState("confirm");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleReset = () => {
@@ -157,6 +222,39 @@ export function ClubSelectionForm() {
       <Header />
 
       <div className="mx-auto max-w-4xl px-4 py-8 -mt-8 relative z-10 space-y-6">
+        <div className="rounded-2xl bg-white p-6 shadow-sm">
+          <div className="mb-5 flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f0f2f5]">
+              <BookOpen className="h-5 w-5 text-[#1b3a2d]" />
+            </div>
+            <div>
+              <h3 className="font-bold text-[#1b3a2d]">Student Details</h3>
+            </div>
+          </div>
+          <div className="overflow-hidden rounded-xl border border-[#e5e7eb] text-sm">
+            <div className="grid grid-cols-2 gap-4 bg-[#f3f4f6] px-4 py-3 text-xs uppercase tracking-[0.12em] text-[#6b7280]">
+              <span>Name</span>
+              <span>{studentDetails.name || "-"}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4 px-4 py-3 text-sm text-[#1b3a2d]">
+              <span className="font-semibold text-[#6b7280]">Course</span>
+              <span>{studentDetails.course || "-"}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4 bg-[#f9fafb] px-4 py-3 text-sm text-[#1b3a2d]">
+              <span className="font-semibold text-[#6b7280]">Reg No</span>
+              <span>{studentDetails.regNo || "-"}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4 px-4 py-3 text-sm text-[#1b3a2d]">
+              <span className="font-semibold text-[#6b7280]">Stream</span>
+              <span>{studentDetails.stream || "-"}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-4 bg-[#f9fafb] px-4 py-3 text-sm text-[#1b3a2d]">
+              <span className="font-semibold text-[#6b7280]">Section</span>
+              <span>{studentDetails.section || "-"}</span>
+            </div>
+          </div>
+        </div>
+
         {/* Progress Bar */}
         <div className="h-1.5 rounded-full overflow-hidden bg-[#e5e7eb]">
           <div
@@ -399,6 +497,11 @@ export function ClubSelectionForm() {
                       ? "No changes can be done once submitted. Are you sure you want to submit?"
                       : `You need to select ${maxSelections} clubs before submitting. Please add more clubs.`}
                   </DialogDescription>
+                  {submitError ? (
+                    <div className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
+                      {submitError}
+                    </div>
+                  ) : null}
                 </DialogHeader>
                 <DialogFooter>
                   {confirmationDialogState === "confirm" ? (
@@ -410,9 +513,10 @@ export function ClubSelectionForm() {
                       </DialogClose>
                       <Button
                         onClick={handleConfirmSubmit}
-                        className="px-6 h-11 rounded-xl bg-[#1b3a2d] hover:bg-[#153024] text-white"
+                        disabled={submitting}
+                        className="px-6 h-11 rounded-xl bg-[#1b3a2d] hover:bg-[#153024] text-white disabled:cursor-not-allowed disabled:opacity-60"
                       >
-                        Confirm
+                        {submitting ? "Submitting..." : "Confirm"}
                       </Button>
                     </>
                   ) : (
