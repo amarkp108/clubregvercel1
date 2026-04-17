@@ -29,7 +29,7 @@ export const domains: Domain[] = [
       { name: "Classical Dance" },
       { name: "Contemporary: Hip Hop Dance" },
       { name: "Free Style & Folk Dance" },
-      { name: "Punjabi Folks: Giddha" },
+      { name: "Punjabi Folk: Giddha" },
     ],
   },
   {
