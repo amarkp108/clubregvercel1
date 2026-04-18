@@ -17,7 +17,7 @@ export const domains: Domain[] = [
       { name: "Handmade Jewellery" },
       { name: "Anime Portrait" },
       { name: "Miniature Painting" },
-      { name: "Shoe and Latern Painting" },
+      { name: "Shoe and Lantern Painting" },
       { name: "Design Thinking and Innovation" },
       { name: "Creative Painting" },
     ],
@@ -58,7 +58,7 @@ export const domains: Domain[] = [
       { name: "Augmented Reality and Internet of things" },
       { name: "Food & Baking" },
       { name: "Health & Wellness" },
-      { name: "Mass Media" },
+      { name: "Marketing & Sales" },
     ],
   },
   {
@@ -70,6 +70,7 @@ export const domains: Domain[] = [
       { name: "Namaste Germany! (Only for German language students)" },
       { name: "Namaste Japan! (Only for Japanese language students)" },
       { name: "Namaste France! (Open to all students)" },
+      { name: "Mass Media" },
     ],
   },
   {
@@ -80,7 +81,6 @@ export const domains: Domain[] = [
       { name: "Aptitude & Reasoning club" },
       { name: "Maths Manthan" },
       { name: "Youth Parliament" },
-      { name: "Marketing & Sales" },
     ],
   },
 ];
